@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение размера изображения</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='/styles.css') }}">
+    {% if site_key != "YOUR_SITE_KEY" %}
+    <script>
+        var s = document.createElement('script');
+        s.src = 'https://google.com/recaptcha/api.js';
+        s.async = true;
+        s.defer = true;
+        document.head.appendChild(s);
+
+        window.correctCaptcha = function(response) {
+            document.getElementById('resp').value = response;
+        };
+    </script>
+    <script>
+        window.correctCaptcha = function(response) {
+            document.getElementsByName('resp')[0].value = response;
+        };
+    </script>
+    {% endif %}
+</head>
+<body>
+    <div class="container">
+        <h1>Масштабирование изображения</h1>
+
+        <form method="post" action="/process" enctype="multipart/form-data">
+            <fieldset>
+                <legend>Параметры обработки</legend>
+                <p>
+                    <label for="file">Выберите изображение:</label><br>
+                    <input type="file" id="file" name="file" accept="image/*" required>
+                </p>
+                <p>
+                    <label for="scale_factor">Коэффициент масштабирования (0.1 – 5.0):</label><br>
+                    <input type="number" id="scale_factor" name="scale_factor" min="0.1" max="5.0" step="0.1" value="0.5" required>
+                </p>
+
+                {% if site_key != "YOUR_SITE_KEY" %}
+                <input type="hidden" id="resp" name="resp" value="0">
+                <div class="g-recaptcha" data-sitekey="{{ site_key }}" data-callback="correctCaptcha"></div>
+                <br>
+                {% endif %}
+
+                <button type="submit">Обработать</button>
+            </fieldset>
+        </form>
+
+        {% if ready %}
+        <fieldset>
+            <legend>Результаты обработки (масштаб: {{ scale_factor }})</legend>
+            <table>
+                <tr>
+                    <th>Исходное изображение ({{ orig_size }})</th>
+                    <th>Измененное изображение ({{ resized_size }})</th>
+                </tr>
+                <tr>
+                    <td><img src="{{ orig_url }}" alt="Исходное изображение"></td>
+                    <td><img src="{{ resized_url }}" alt="Измененное изображение"></td>
+                </tr>
+                <tr>
+                    <th>Гистограмма исходного изображения</th>
+                    <th>Гистограмма измененного изображения</th>
+                </tr>
+                <tr>
+                    <td><img src="{{ hist_orig_url }}" alt="Гистограмма исходного"></td>
+                    <td><img src="{{ hist_resized_url }}" alt="Гистограмма измененного"></td>
+                </tr>
+            </table>
+        </fieldset>
+        {% endif %}
+    </div>
+</body>
+</html>
